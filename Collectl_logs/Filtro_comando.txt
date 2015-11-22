@@ -1,0 +1,23 @@
+Filtro
+saulo@saulo-Aspire-5750:~/Documentos/estudo/RestAPI/Collectl_logs/Jmeter_logs$
+$ cat Collectl_log_2015_11_21-22\:18.txt | grep -v ^# | tr -s ' ' ',' |tr 'M' ' ' | tr -s ' ,' ',' > Atual.txt
+
+
+
+========== Gráficos:
+
+Utilização de CPU
+Tempo (H:m:s)
+CPU %
+
+Memória Livre
+Tempo (H:m:s)
+Memória em KB
+
+I/O de Disco
+Tempo (H:m:s)
+Transferência em KB
+
+I/O de Rede
+Tempo (H:m:s)
+Transferência em KB
