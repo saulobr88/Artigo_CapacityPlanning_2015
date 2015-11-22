@@ -1,1 +1,1 @@
-Repositório contendo o material auxiliar referente ao Artigo sobre Capacity Planning, para a disciplina de Análise de Desempenho de Sistemas do Curso de Bacharelado em Ciência da Computação da UFRPE.
+Repositório contendo o material auxiliar referente ao Artigo sobre Capacity Planning (Planejamento de capacidade para sistemas Linux, usando VPS para o fornecimento de SaaS), para a disciplina de Análise de Desempenho de Sistemas do Curso de Bacharelado em Ciência da Computação da UFRPE.
