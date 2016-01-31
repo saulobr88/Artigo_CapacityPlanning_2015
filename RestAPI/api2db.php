@@ -5,60 +5,91 @@ $conf['server']='localhost';
 $conf['username']='sakila';
 $conf['password']='sakila';
 $conf['dbname']='sakila';
+$conn;
 
-function get_person_by_id($id) {
-    global $conf;
-    $con = mysql_connect($conf['server'], $conf['username'], $conf['password']);
-    if (!$con) {
-        die('Could not connect: ' . mysql_error());
+function makeConn()
+{
+    global $conf, $conn;
+    try
+    {
+        $conn = new PDO("mysql:host=".$conf['server'].";dbname=".$conf['dbname'],
+                        $conf['username'],
+                        $conf['password']
+                        );
+        // set the PDO error mode to exception
+        $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        //echo "Connected successfully";
     }
-
-    $db_selected = mysql_select_db($conf['dbname'], $con);
-    if (!$db_selected) {
-        die('Can\'t use dbname : ' . mysql_error());
+    catch(PDOException $e)
+    {
+        echo "Connection failed: " . $e->getMessage();
     }
-    $sql = "SELECT actor_id, first_name, last_name, last_update FROM actor WHERE actor_id='" . $id . "'";
-    $result = mysql_query($sql);
-    if (!$result) {
-        die('Invalid query: ' . $sql . "   " . mysql_error());
+}
+
+function umakeConn()
+{
+    global $conn;
+    $conn = null;
+}
+
+function get_person_by_id($id)
+{
+    global $conf, $conn;
+    makeConn();
+    $stmt;
+    $person_info = array();
+    
+    try
+    {
+        $sql = "SELECT actor_id, first_name, last_name, last_update
+        FROM actor WHERE actor_id='" . $id . "'";
+        $stmt = $conn->prepare($sql); 
+        $stmt->execute();
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        $person_info['actor_id']    = $row['actor_id'];
+        $person_info['first_name']  = $row['first_name'];
+        $person_info['last_name']   = $row['last_name'];
+        $person_info['last_update'] = $row['last_update'];
     }
-//Allocate the array
-    $app_info = array();
-    $row = mysql_fetch_array($result);
-
-    $person_info['actor_id'] = $row['actor_id'];
-    $person_info['first_name'] = $row['first_name'];
-    $person_info['last_name'] = $row['last_name'];
-    $person_info['last_update'] = $row['last_update'];
-
-    mysql_close($con);
+    catch(PDOException $e)
+    {
+        echo "Error: " . $e->getMessage();
+    }
+    
+    umakeConn();
     return $person_info;
 }
 
-function get_person_list() {
-//Build the JSON array from the database
-    global $conf;
-    $con = mysql_connect($conf['server'], $conf['username'], $conf['password']);
-    if (!$con) {
-        die('Could not connect: ' . mysql_error());
-    }
-//echo 'Connected successfully';
-    $db_selected = mysql_select_db($conf['dbname'], $con);
-    if (!$db_selected) {
-        die('Can\'t use dbname: ' . mysql_error());
-    }
-    $sql = "SELECT actor_id, first_name, last_name, last_update FROM actor";
-    $result = mysql_query($sql);
-    if (!$result) {
-        die('Invalid query: ' . $sql . "   " . mysql_error());
-    }
-//Allocate the array
+function get_person_list()
+{
+    //Build the JSON array from the database
+    global $conf, $conn;
+    makeConn();
+    $stmt;
     $person_list = array();
-//Loop through database to add books to array
-    while ($row = mysql_fetch_array($result)) {
-        $person_list[] = array('actor_id' => $row['actor_id'], 'first_name' => $row['first_name'], 'last_name' => $row['last_name']);
+    
+    try
+    {
+        $sql = "SELECT actor_id, first_name, last_name, last_update
+                FROM actor";
+        $stmt = $conn->prepare($sql); 
+        $stmt->execute();
+        
+        while( $row = $stmt->fetch(PDO::FETCH_ASSOC) ) {
+            $person_list[] = array(
+                            'actor_id' => $row['actor_id'],
+                            'first_name' => $row['first_name'],
+                            'last_name' => $row['last_name']
+                            );
+        }        
     }
-    mysql_close($con);
+    catch(PDOException $e)
+    {
+        echo "Error: " . $e->getMessage();
+    }
+    
+    umakeConn();
+    
     return $person_list;
 }
 
